@@ -6,10 +6,11 @@
 
 * 💪 Completely typed runtime validation with TypeScript.
 * 🧠 Full intellisense support.
-* `[ ℹ️, ℹ️, ℹ️ ]` Accumulated errors = see all validation errors at once
-* 🍞 Breadcrumbs-enhanced errors let you understand exact key failed validation
-* ⭐ Intuitive schema definitions and clear return type
+* `[ ℹ️, ℹ️, ℹ️ ]` Accumulated errors = see all validation errors at once.
+* 🍞 Breadcrumbs-enhanced errors let you understand exact key failed validation.
+* ⭐ Intuitive schema definitions and clear return type.
 * 🚀 Easily customizable.
+* 💫 Zero dependecy.
 
 # Installation
 
@@ -37,7 +38,7 @@ const UserDto = v.class({
         .pattern(/^\w+$/),
 
     role: v.Nested({
-        type: v.Enum(USER_ROLE)
+        type: v.Enum(USER_ROLE),
     }),
 
     avatar: v
