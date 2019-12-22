@@ -15,7 +15,7 @@ describe('string', () => {
                 .pattern(/^\w+$/),
 
             role: v.Nested({
-                type: v.Enum(USER_ROLE)
+                type: v.Enum(USER_ROLE),
             }),
 
             avatar: v

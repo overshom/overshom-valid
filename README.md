@@ -2,7 +2,7 @@
 
 <a href="https://www.npmjs.com/package/overshom-valid"><img src="https://img.shields.io/npm/v/overshom-valid.svg" alt="npm package" /></a>
 
-> Powerful TypeScrip validation
+> Powerful TypeScript validation
 
 * 💪 Completely typed runtime validation with TypeScript.
 * 🧠 Full intellisense support.

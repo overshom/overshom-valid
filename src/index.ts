@@ -3,9 +3,9 @@ import { StringVaildator, NumberVaildator, EnumValidator, NestedValidator, Boole
 import { ValidationError } from './error'
 
 export const v = {
-    class: <T extends ObjectWithValidators, VT extends ValueType<T>>(schema: T): new (source: VT | string) => VT => {
+    class: <T extends ObjectWithValidators, VT extends ValueType<T>>(schema: T): new (source: unknown) => VT => {
         return class {
-            constructor(source: VT | string) {
+            constructor(source: unknown) {
                 if (typeof source === 'string') {
                     try {
                         source = JSON.parse(source)
