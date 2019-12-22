@@ -1,3 +1,6 @@
 {
-    "typescript.format.semicolons": "remove"
+    "typescript.format.semicolons": "remove",
+    "search.exclude": {
+        "dist": true
+    }
 }
