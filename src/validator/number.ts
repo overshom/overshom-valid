@@ -2,33 +2,52 @@ import { BaseValidator, CONSTRAINT_NAME } from '../types'
 import { ValidationError } from '../error'
 
 export class NumberVaildator extends BaseValidator<number> {
+    private readonly expectedType = 'number'
     private limitMin?: number
     private limitMax?: number
 
     validate(value: unknown) {
-        if (typeof value !== 'number') {
+        const number = this.coerce(value)
+        this.checkRestrictions(number, value)
+        return number
+    }
+
+    private coerce(receivedValue: unknown): number {
+        const number = Number(receivedValue)
+        if (Number.isNaN(number)) {
             throw new ValidationError({
                 constraintName: CONSTRAINT_NAME.TYPE_MISMATCH,
-                receivedValue: value,
-                expectedType: 'number',
-                receivedType: typeof value,
+                receivedValue,
+                expectedType: this.expectedType,
+                receivedType: typeof receivedValue,
             })
         }
-        if (this.limitMin !== undefined && value < this.limitMin) {
+        if (false === Number.isFinite(number)) {
+            throw new ValidationError({
+                constraintName: CONSTRAINT_NAME.TYPE_MISMATCH,
+                receivedValue,
+                expectedType: this.expectedType,
+                receivedType: typeof receivedValue,
+            })
+        }
+        return number
+    }
+
+    private checkRestrictions(number: number, receivedValue: unknown) {
+        if (this.limitMin !== undefined && number < this.limitMin) {
             throw new ValidationError({
                 constraintName: CONSTRAINT_NAME.MIN_NUMBER,
                 constraintValue: this.limitMin,
-                receivedValue: value,
+                receivedValue,
             })
         }
-        if (this.limitMax !== undefined && value > this.limitMax) {
+        if (this.limitMax !== undefined && number > this.limitMax) {
             throw new ValidationError({
                 constraintName: CONSTRAINT_NAME.MAX_NUMBER,
                 constraintValue: this.limitMax,
-                receivedValue: value,
+                receivedValue,
             })
         }
-        return value
     }
 
     min(n: number) {
