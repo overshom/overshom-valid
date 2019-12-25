@@ -9,19 +9,19 @@ export abstract class BaseValidator<T> {
 
     abstract validate(value: unknown, ...rest: any[]): T
 
-    optional(defaultValue?: T) {
+    optional(defaultValue?: T): Optional<this> {
         this[HIDDEN_VALIDATOR_KEYS.isRequired] = false
         this[HIDDEN_VALIDATOR_KEYS.defaultValue] = defaultValue
-        return this as Optional<this>
+        return this
     }
 }
 
-type Optional<T> = undefined | T
+type Optional<T> = void | T
 
 export type ExtractEnumValues<T> = T[keyof T]
 
 export interface ObjectWithValidators {
-    [key: string]: BaseValidator<any> | undefined
+    [key: string]: BaseValidator<any> | void
 }
 
 export type ValueType<T> = T extends ObjectWithValidators
@@ -53,4 +53,5 @@ export enum CONSTRAINT_NAME {
     INVALID_ENUM_VALUE = 'INVALID_ENUM_VALUE',
     INVALID_BOOLEAN_VALUE = 'INVALID_BOOLEAN_VALUE',
     NULL_VALUE_FORBIDDEN = 'NULL_VALUE_FORBIDDEN',
+    NOT_ARRAY_PROVIDED = 'NOT_ARRAY_PROVIDED',
 }
