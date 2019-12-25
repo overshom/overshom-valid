@@ -1,16 +1,16 @@
 import { v } from '..'
 
-describe('nested', () => {
-    it('basic nested validation', () => {
+describe('object', () => {
+    it('basic object validation', () => {
         const CarDto = v.class({
             model: v
                 .String(),
 
-            owner: v.Nested({
+            owner: v.Object({
                 name: v
                     .String(),
 
-                avatar: v.Nested({
+                avatar: v.Object({
                     url: v
                         .String(),
                 }),

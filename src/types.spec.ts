@@ -10,9 +10,9 @@ describe('types', () => {
             string: v.String(),
             number: v.Number(),
             bool: v.Boolean(),
-            nested: v.Nested({
+            object: v.Object({
                 prop: v.Enum(E),
-                nested: v.Nested({
+                object: v.Object({
                     prop: v.Number(),
                 }),
             }),
@@ -22,9 +22,9 @@ describe('types', () => {
             string: '',
             number: 0,
             bool: true,
-            nested: {
+            object: {
                 prop: E.A,
-                nested: {
+                object: {
                     prop: 0,
                 }
             }

@@ -37,7 +37,7 @@ const UserDto = v.class({
         .max(16)
         .pattern(/^\w+$/),
 
-    role: v.Nested({
+    role: v.Object({
         type: v.Enum(USER_ROLE),
     }),
 

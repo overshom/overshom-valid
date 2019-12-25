@@ -1,5 +1,5 @@
-import { ObjectWithValidators, ValueType, ExtractEnumValues, CONSTRAINT_NAME } from './types'
-import { StringVaildator, NumberVaildator, EnumValidator, NestedValidator, BooleanValidator } from './validator'
+import { ObjectWithValidators, ValueType, ExtractEnumValues, CONSTRAINT_NAME, BaseValidator } from './types'
+import { StringVaildator, NumberVaildator, EnumValidator, ObjectValidator, BooleanValidator, ArrayValidator } from './validator'
 import { ValidationError } from './error'
 
 export const v = {
@@ -17,7 +17,7 @@ export const v = {
                     }
                 }
 
-                const nested = new NestedValidator(schema)
+                const nested = new ObjectValidator(schema)
                 const out = nested.validate(source as T)
                 const { validationErrors } = nested
 
@@ -39,6 +39,7 @@ export const v = {
     Number: () => new NumberVaildator(),
     Boolean: () => new BooleanValidator(),
     Enum: <T>(e: T) => new EnumValidator(e) as any as EnumValidator<ExtractEnumValues<typeof e>>,
-    Nested: <T extends ObjectWithValidators>(e: T) => new NestedValidator<T, ValueType<T>>(e),
+    Object: <T extends ObjectWithValidators>(e: T) => new ObjectValidator<T, ValueType<T>>(e),
+    Array: <T extends any>(itemValidator: BaseValidator<T>) => new ArrayValidator(itemValidator),
     // TODO add withDecorator(decorator)
 }

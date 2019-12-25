@@ -1,7 +1,7 @@
 import { BaseValidator, ObjectWithValidators, ValueType, HIDDEN_VALIDATOR_KEYS, CONSTRAINT_NAME } from '../types';
 import { ValidationError } from '../error';
 
-export class NestedValidator<T extends ObjectWithValidators, VT extends ValueType<T>> extends BaseValidator<VT> {
+export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueType<T>> extends BaseValidator<VT> {
     constructor(private schema: T) {
         super()
     }
@@ -32,7 +32,7 @@ export class NestedValidator<T extends ObjectWithValidators, VT extends ValueTyp
             }
             const currentKeyPath = parentKeyPath === '' ? key : `${parentKeyPath}.${key}`
 
-            const validator = schema[key] as BaseValidator<any>
+            const validator = schema[key]
             if (!(validator instanceof BaseValidator)) {
                 return accumulateError({
                     constraintName: CONSTRAINT_NAME.INVALID_VALIDATOR_PROVIDED,
@@ -59,7 +59,7 @@ export class NestedValidator<T extends ObjectWithValidators, VT extends ValueTyp
                 })
             }
             try {
-                if (validator instanceof NestedValidator) {
+                if (validator instanceof ObjectValidator) {
                     const nested = validator.validate(writeValue, currentKeyPath)
                     if (validator.validationErrors.length) {
                         validationErrors.push(...validator.validationErrors)
