@@ -15,14 +15,14 @@ export class EnumValidator<T> extends BaseValidator<T> {
         }
     }
 
-    validate(value: T) {
-        if (!Object.values(this.e).some(option => value === option)) {
+    validate(value: unknown) {
+        if (false === Object.values(this.e).some(option => value === option)) {
             throw new ValidationError({
                 constraintName: CONSTRAINT_NAME.INVALID_ENUM_VALUE,
                 receivedValue: value,
                 expectedType: stringifyEnumValues(this.e),
             })
         }
-        return value
+        return value as T
     }
 }
