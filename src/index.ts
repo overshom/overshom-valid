@@ -1,4 +1,4 @@
-import { ObjectWithValidators, ValueType, ExtractEnumValues, CONSTRAINT_NAME, BaseValidator } from './types'
+import { ObjectWithValidators, ValueType, ExtractEnumValues, BaseValidator } from './types'
 import { StringVaildator, NumberVaildator, EnumValidator, ObjectValidator, BooleanValidator, ArrayValidator } from './validator'
 
 export const v = {
