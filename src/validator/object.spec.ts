@@ -6,6 +6,10 @@ describe('object', () => {
             model: v
                 .String(),
 
+            tag: v
+                .String()
+                .optional(),
+
             owner: v.Object({
                 name: v
                     .String(),
@@ -19,6 +23,7 @@ describe('object', () => {
 
         const expected = {
             model: 'TESLA',
+            tag: undefined,
             owner: {
                 name: 'Elon',
                 avatar: {
@@ -27,7 +32,10 @@ describe('object', () => {
             }
         }
 
-        const car = new CarDto(JSON.stringify(expected))
+        const car = new CarDto(JSON.stringify({
+            ...expected,
+            tag: null,
+        }))
 
         expect(car).toEqual(expected)
     })

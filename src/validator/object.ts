@@ -1,5 +1,5 @@
-import { BaseValidator, ObjectWithValidators, ValueType, HIDDEN_VALIDATOR_KEYS, CONSTRAINT_NAME } from '../types';
-import { ValidationError } from '../error';
+import { BaseValidator, ObjectWithValidators, ValueType, HIDDEN_VALIDATOR_KEYS, CONSTRAINT_NAME } from '../types'
+import { ValidationError } from '../error'
 
 export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueType<T>> extends BaseValidator<VT> {
     constructor(private schema: T) {
@@ -54,9 +54,7 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
                 }
             }
             if (writeValue === null) {
-                return accumulateError({
-                    constraintName: CONSTRAINT_NAME.NULL_VALUE_FORBIDDEN,
-                })
+                return
             }
             try {
                 if (validator instanceof ObjectValidator) {
