@@ -1,36 +1,11 @@
 import { ObjectWithValidators, ValueType, ExtractEnumValues, CONSTRAINT_NAME, BaseValidator } from './types'
 import { StringVaildator, NumberVaildator, EnumValidator, ObjectValidator, BooleanValidator, ArrayValidator } from './validator'
-import { ValidationError } from './error'
 
 export const v = {
     class: <T extends ObjectWithValidators, VT extends ValueType<T>>(schema: T): new (source: unknown) => VT => {
         return class {
             constructor(source: unknown) {
-                if (typeof source === 'string') {
-                    try {
-                        source = JSON.parse(source)
-                    } catch (e) {
-                        throw new ValidationError({
-                            constraintName: CONSTRAINT_NAME.SOURCE_PARSE_FAIL,
-                            caughtError: e,
-                        })
-                    }
-                }
-
-                const nested = new ObjectValidator(schema)
-                const out = nested.validate(source as T)
-                const { validationErrors } = nested
-
-                if (validationErrors.length) {
-                    console.error('VALIDATION ERRORS', {
-                        source,
-                        validationErrors,
-                    })
-                    throw new ValidationError({
-                        constraintName: CONSTRAINT_NAME.FAILED_TO_CONSTRUCT,
-                    })
-                }
-
+                const out = new ObjectValidator(schema).validate(source as T)
                 Object.assign(this, out)
             }
         } as any

@@ -1,16 +1,24 @@
 import { BaseValidator, ObjectWithValidators, ValueType, HIDDEN_VALIDATOR_KEYS, CONSTRAINT_NAME } from '../types'
-import { ValidationError } from '../error'
+import { ValidationError, ErrorDetails } from '../error'
 
 export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueType<T>> extends BaseValidator<VT> {
     constructor(private schema: T) {
         super()
     }
 
-    validationErrors: ValidationError['details'][] = []
+    validate(source: unknown, parentKeyPath = '') {
+        if (typeof source === 'string') {
+            try {
+                source = JSON.parse(source)
+            } catch (e) {
+                throw new ValidationError({
+                    constraintName: CONSTRAINT_NAME.SOURCE_PARSE_FAIL,
+                    caughtError: e,
+                })
+            }
+        }
 
-    validate(source: { [key: string]: any }, parentKeyPath = '') {
-        const { validationErrors } = this
-        validationErrors.length = 0
+        const accumulativeDetails: ErrorDetails[] = []
 
         if (typeof source !== 'object') {
             throw new ValidationError({
@@ -19,32 +27,34 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
             })
         }
 
+        const objSource = source as { [key: string]: any }
+
         const out = {} as any
         const { schema } = this
 
         Object.keys(schema).forEach(key => {
-            const accumulateError = (details: ValidationError['details']) => {
+            const pushError = (details: ValidationError['details']) => {
                 const error = new ValidationError({
                     key: currentKeyPath,
                     ...details,
                 })
-                validationErrors.push(error.details)
+                accumulativeDetails.push(error.details)
             }
             const currentKeyPath = parentKeyPath === '' ? key : `${parentKeyPath}.${key}`
 
             const validator = schema[key]
             if (!(validator instanceof BaseValidator)) {
-                return accumulateError({
+                return pushError({
                     constraintName: CONSTRAINT_NAME.INVALID_VALIDATOR_PROVIDED,
                 })
             }
 
             let writeValue: any
-            if (key in source) {
-                writeValue = source[key]
+            if (key in objSource) {
+                writeValue = objSource[key]
             } else {
                 if ((validator as any)[HIDDEN_VALIDATOR_KEYS.isRequired]) {
-                    return accumulateError({
+                    return pushError({
                         constraintName: CONSTRAINT_NAME.REQUIRED_KEY_MISSING,
                     })
                 }
@@ -58,27 +68,48 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
             }
             try {
                 if (validator instanceof ObjectValidator) {
-                    const nested = validator.validate(writeValue, currentKeyPath)
-                    if (validator.validationErrors.length) {
-                        validationErrors.push(...validator.validationErrors)
+                    try {
+                        out[key] = validator.validate(writeValue, currentKeyPath)
+                    } catch (e) {
+                        if (!(e instanceof ValidationError)) {
+                            throw e
+                        }
+                        if (!e.details.accumulativeDetails) {
+                            throw e
+                        }
+                        accumulativeDetails.push(...e.details.accumulativeDetails)
                         return
                     }
-                    out[key] = nested
                     return
                 }
                 out[key] = validator.validate(writeValue)
             } catch (e) {
                 if (!(e instanceof ValidationError)) {
-                    return accumulateError({
+                    return pushError({
                         constraintName: CONSTRAINT_NAME.NOT_VALIDATOR_ERROR_INSTANCE,
                     })
                 }
-                return accumulateError({
+                return pushError({
                     ...e.details,
                     key: currentKeyPath,
                 })
             }
         })
+
+        if (accumulativeDetails.length) {
+            if (parentKeyPath === '') {
+                // TODO use better approach than just console. Add ability to disable / intercept logs.
+                console.error('VALIDATION ERRORS', {
+                    source,
+                    accumulativeDetails,
+                })
+            }
+            throw new ValidationError({
+                constraintName: CONSTRAINT_NAME.ACCUMULATIVE_ERROR,
+                accumulativeDetails,
+            })
+        }
+
         return out as VT
     }
 }
