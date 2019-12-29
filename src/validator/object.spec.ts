@@ -2,8 +2,17 @@ import { v } from '..'
 import { expectValidationError } from '../helper.spec'
 import { ValidationError } from '../error'
 import { CONSTRAINT_NAME } from '../types'
+import { logger } from '../logger'
 
 describe('object', () => {
+    beforeAll(() => {
+        logger.muteLogs()
+    })
+
+    afterAll(() => {
+        logger.unmuteLogs()
+    })
+
     it('from string', () => {
         const car = {
             model: 'TESLA'
@@ -40,10 +49,29 @@ describe('object', () => {
         }))
     })
 
+    it('optional property', () => {
+        const validator = v.Object({
+            tag: v.String(),
+            tagFromUndefined: v.Number().optional(),
+            tagFromNull: v.Number().optional(),
+        })
+
+        const result = validator.validate({
+            tag: 'tag',
+            tagFromUndefined: undefined,
+            tagFromNull: null,
+        })
+
+        expect(result).toEqual({
+            tag: 'tag',
+            tagFromUndefined: undefined,
+            tagFromNull: undefined,
+        })
+    })
+
     it('nested validation', () => {
         const expected = {
             model: 'TESLA',
-            tag: undefined,
             owner: {
                 name: 'Elon',
                 avatar: {
@@ -53,28 +81,16 @@ describe('object', () => {
         }
 
         const validator = v.Object({
-            model: v
-                .String(),
-
-            tag: v
-                .String()
-                .optional(),
-
+            model: v.String(),
             owner: v.Object({
-                name: v
-                    .String(),
-
+                name: v.String(),
                 avatar: v.Object({
-                    url: v
-                        .String(),
+                    url: v.String(),
                 }),
             }),
         })
 
-        const car = validator.validate(JSON.stringify({
-            ...expected,
-            tag: null,
-        }))
+        const car = validator.validate(JSON.stringify(expected))
 
         expect(car).toEqual(expected)
 
