@@ -1,5 +1,6 @@
 import { BaseValidator, ObjectWithValidators, ValueType, HIDDEN_VALIDATOR_KEYS, CONSTRAINT_NAME } from '../types'
 import { ValidationError, ErrorDetails } from '../error'
+import { logger } from '../logger'
 
 export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueType<T>> extends BaseValidator<VT> {
     constructor(private schema: T) {
@@ -49,21 +50,21 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
                 })
             }
 
-            let writeValue: any
-            if (key in objSource) {
-                writeValue = objSource[key]
-            } else {
-                if ((validator as any)[HIDDEN_VALIDATOR_KEYS.isRequired]) {
+            let writeValue: any = undefined
+            if ((validator as any)[HIDDEN_VALIDATOR_KEYS.isRequired]) {
+                if (key in objSource) {
+                    writeValue = objSource[key]
+                }
+                if (writeValue === null || writeValue === undefined) {
                     return pushError({
                         constraintName: CONSTRAINT_NAME.REQUIRED_KEY_MISSING,
                     })
                 }
-                writeValue = (validator as any)[HIDDEN_VALIDATOR_KEYS.defaultValue]
-                if (writeValue === undefined) {
-                    return
-                }
             }
-            if (writeValue === null) {
+            if (!(key in objSource) && HIDDEN_VALIDATOR_KEYS.defaultValue in validator) {
+                writeValue = (validator as any)[HIDDEN_VALIDATOR_KEYS.defaultValue]
+            }
+            if (writeValue === undefined || writeValue === null) {
                 return
             }
             try {
@@ -98,8 +99,7 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
 
         if (accumulativeDetails.length) {
             if (parentKeyPath === '') {
-                // TODO use better approach than just console. Add ability to disable / intercept logs.
-                console.error('VALIDATION ERRORS', {
+                logger.error('VALIDATION ERRORS', {
                     source,
                     accumulativeDetails,
                 })
