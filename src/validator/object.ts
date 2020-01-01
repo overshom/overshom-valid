@@ -51,18 +51,17 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
             }
 
             let writeValue: any = undefined
+            if (key in objSource) {
+                writeValue = objSource[key]
+            } else if (HIDDEN_VALIDATOR_KEYS.defaultValue in validator) {
+                writeValue = (validator as any)[HIDDEN_VALIDATOR_KEYS.defaultValue]
+            }
             if ((validator as any)[HIDDEN_VALIDATOR_KEYS.isRequired]) {
-                if (key in objSource) {
-                    writeValue = objSource[key]
-                }
                 if (writeValue === null || writeValue === undefined) {
                     return pushError({
                         constraintName: CONSTRAINT_NAME.REQUIRED_KEY_MISSING,
                     })
                 }
-            }
-            if (!(key in objSource) && HIDDEN_VALIDATOR_KEYS.defaultValue in validator) {
-                writeValue = (validator as any)[HIDDEN_VALIDATOR_KEYS.defaultValue]
             }
             if (writeValue === undefined || writeValue === null) {
                 return
