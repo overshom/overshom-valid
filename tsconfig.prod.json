@@ -4,5 +4,6 @@
         "incremental": false,
         "noUnusedLocals": true,
         "noUnusedParameters": true
-    }
+    },
+    "exclude": ["node_modules", "src/**/*.spec.ts"]
 }
