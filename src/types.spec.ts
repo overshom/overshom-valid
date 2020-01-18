@@ -10,6 +10,7 @@ describe('types', () => {
             string: v.String(),
             number: v.Number(),
             bool: v.Boolean(),
+            variadicObject: v.AllProperties(v.Boolean()),
             object: v.Object({
                 prop: v.Enum(E),
                 object: v.Object({
@@ -22,6 +23,13 @@ describe('types', () => {
             string: '',
             number: 0,
             bool: true,
+            variadicObject: {
+                foo: true,
+                bar: false,
+                other: true,
+            } as {
+                [key: string]: boolean
+            },
             object: {
                 prop: E.A,
                 object: {
