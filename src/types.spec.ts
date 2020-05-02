@@ -10,7 +10,7 @@ describe('types', () => {
             string: v.String(),
             number: v.Number(),
             bool: v.Boolean(),
-            variadicObject: v.AllProperties(v.Boolean()),
+            variadicObject: v.Record(v.Boolean()),
             object: v.Object({
                 prop: v.Enum(E),
                 object: v.Object({

@@ -3,18 +3,18 @@ import { ValidationError } from '../error'
 import { CONSTRAINT_NAME } from '../types'
 import { expectValidationError } from '../helper.spec'
 
-describe('all properties', () => {
+describe('record', () => {
     it('base validation', () => {
         const obj = {
             foo: true,
             bar: false,
         }
-        const validated = v.AllProperties(v.Boolean()).validate(obj)
+        const validated = v.Record(v.Boolean()).validate(obj)
 
         expect(validated).toEqual(obj)
 
         expectValidationError(() => {
-            v.AllProperties(v.Number()).validate({
+            v.Record(v.Number()).validate({
                 foo: 'foo',
                 bar: 'bar',
             })
@@ -23,7 +23,7 @@ describe('all properties', () => {
         }))
 
         expectValidationError(() => {
-            v.AllProperties(v.Number()).validate({
+            v.Record(v.Number()).validate({
                 foo: 1,
                 bar: 'bar',
             })
