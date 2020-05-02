@@ -1,13 +1,11 @@
-import { BaseValidator, CONSTRAINT_NAME, ExtractValidatorType } from '../types'
+import { BaseValidator, CONSTRAINT_NAME } from '../types'
 import { ValidationError } from '../error'
 
-export class AllPropertiesValidator<PV extends BaseValidator<any>, T = ExtractValidatorType<PV>> extends BaseValidator<{
-    [key: string]: T
-}> {
+export class RecordValidator<SemanticValue, PV extends BaseValidator<SemanticValue> = BaseValidator<SemanticValue>> extends BaseValidator<Record<string, SemanticValue>> {
     constructor(private propertyValidator: PV) {
         super()
         if (false === propertyValidator instanceof BaseValidator) {
-            throw new Error('Not base validator provided to AllPropertiesValidator')
+            throw new Error('Not validator provided to RecordValidator')
         }
     }
 
@@ -24,13 +22,13 @@ export class AllPropertiesValidator<PV extends BaseValidator<any>, T = ExtractVa
         }
         if (typeof value !== 'object' || value === null) {
             throw new ValidationError({
-                constraintName: CONSTRAINT_NAME.TYPE_MISMATCH,
+                constraintName: CONSTRAINT_NAME.SOURCE_NOT_OBJECT,
                 receivedValue: value,
                 receivedType: typeof value,
                 expectedType: 'object',
             })
         }
         Object.values(value).forEach(v => this.propertyValidator.validate(v))
-        return value as { [key: string]: T }
+        return value as Record<string, SemanticValue>
     }
 }

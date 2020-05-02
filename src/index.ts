@@ -1,5 +1,5 @@
 import { ObjectWithValidators, ValueType, ExtractEnumValues, BaseValidator } from './types'
-import { StringVaildator, NumberVaildator, EnumValidator, ObjectValidator, BooleanValidator, ArrayValidator, AllPropertiesValidator } from './validator'
+import { StringVaildator, NumberVaildator, EnumValidator, ObjectValidator, BooleanValidator, ArrayValidator, RecordValidator, TransformValidator, IdentityValidator } from './validator'
 
 export const v = {
     class: <T extends ObjectWithValidators, VT extends ValueType<T>>(schema: T): new (source: unknown) => VT => {
@@ -15,7 +15,9 @@ export const v = {
     Boolean: () => new BooleanValidator(),
     Enum: <T>(e: T) => new EnumValidator(e) as any as EnumValidator<ExtractEnumValues<typeof e>>,
     Object: <T extends ObjectWithValidators>(e: T) => new ObjectValidator<T, ValueType<T>>(e),
-    Array: <T extends any>(itemValidator: BaseValidator<T>) => new ArrayValidator(itemValidator),
-    AllProperties: <T extends any>(propertyValidator: BaseValidator<T>) => new AllPropertiesValidator(propertyValidator),
+    Array: <T>(itemValidator: BaseValidator<T>) => new ArrayValidator(itemValidator),
+    Record: <SemanticValue>(propertyValidator: BaseValidator<SemanticValue>) => new RecordValidator<SemanticValue>(propertyValidator),
+    Transform: <T>(transform: (value: unknown) => T) => new TransformValidator(transform),
+    Identity: () => new IdentityValidator(),
     // TODO add withDecorator(decorator)
 }

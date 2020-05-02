@@ -2,6 +2,14 @@ import { BaseValidator, ObjectWithValidators, ValueType, HIDDEN_VALIDATOR_KEYS, 
 import { ValidationError, ErrorDetails } from '../error'
 import { logger } from '../logger'
 
+const findValidatorTransformFn = (validator: BaseValidator<any>) => {
+    const transformFn = (validator as any)[HIDDEN_VALIDATOR_KEYS.transformFn]
+    if (!transformFn) {
+        return
+    }
+    return transformFn as (value: any) => any
+}
+
 export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueType<T>> extends BaseValidator<VT> {
     constructor(private schema: T) {
         super()
@@ -67,9 +75,11 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
                 return
             }
             try {
+                const transformFn = findValidatorTransformFn(validator)
                 if (validator instanceof ObjectValidator) {
                     try {
-                        out[key] = validator.validate(writeValue, currentKeyPath)
+                        const value = validator.validate(writeValue, currentKeyPath)
+                        out[key] = transformFn ? transformFn(value) : value
                     } catch (e) {
                         if (!(e instanceof ValidationError)) {
                             throw e
@@ -82,7 +92,8 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
                     }
                     return
                 }
-                out[key] = validator.validate(writeValue)
+                const value = validator.validate(writeValue)
+                out[key] = transformFn ? transformFn(value) : value
             } catch (e) {
                 if (!(e instanceof ValidationError)) {
                     return pushError({
