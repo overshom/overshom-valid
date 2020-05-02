@@ -122,4 +122,34 @@ describe('object', () => {
             expect(ve.details.accumulativeDetails?.length).toBe(3)
         }
     })
+
+    it('transform and nested validation', () => {
+        const numbers = [1, 3, 7]
+        const numberDoubler = (n: number) => n * 2
+        const arrayNumberDoubler = (arr: number[]) => arr.map(numberDoubler)
+
+        const expected = {
+            numbers: arrayNumberDoubler(numbers),
+            foo: {
+                bar: {
+                    innerNumbers: arrayNumberDoubler(numbers),
+                    originalNumbers: numbers,
+                }
+            }
+        }
+
+        const validator = v.Object({
+            numbers: v.Array(v.Number().transform(numberDoubler)),
+            foo: v.Object({
+                bar: v.Object({
+                    innerNumbers: v.Array(v.Number().transform(numberDoubler)),
+                    originalNumbers: v.Array(v.Number()),
+                }),
+            }),
+        })
+
+        const car = validator.validate(expected)
+
+        expect(car).toEqual(expected)
+    })
 })
