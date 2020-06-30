@@ -61,8 +61,11 @@ export class ObjectValidator<T extends ObjectWithValidators, VT extends ValueTyp
             let writeValue: any = undefined
             if (key in objSource) {
                 writeValue = objSource[key]
-            } else if (HIDDEN_VALIDATOR_KEYS.defaultValue in validator) {
-                writeValue = (validator as any)[HIDDEN_VALIDATOR_KEYS.defaultValue]
+            }
+            if (HIDDEN_VALIDATOR_KEYS.defaultValue in validator) {
+                if (writeValue === null || writeValue === undefined) {
+                    writeValue = (validator as any)[HIDDEN_VALIDATOR_KEYS.defaultValue]
+                }
             }
             if ((validator as any)[HIDDEN_VALIDATOR_KEYS.isRequired]) {
                 if (writeValue === null || writeValue === undefined) {

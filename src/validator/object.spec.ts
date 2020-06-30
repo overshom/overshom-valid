@@ -58,14 +58,26 @@ describe('object', () => {
             tagDefault: v.Number().optional(77),
         })
 
-        const result = validator.validate({
+        expect(validator.validate({
             tag: 'tag',
             tagFromUndefined: undefined,
             tagFromNull: null,
             tagOptional: 9,
+        })).toEqual({
+            tag: 'tag',
+            tagOptional: 9,
+            tagFromUndefined: undefined,
+            tagFromNull: undefined,
+            tagDefault: 77,
         })
 
-        expect(result).toEqual({
+        expect(validator.validate({
+            tag: 'tag',
+            tagFromUndefined: undefined,
+            tagFromNull: null,
+            tagOptional: 9,
+            tagDefault: null,
+        })).toEqual({
             tag: 'tag',
             tagOptional: 9,
             tagFromUndefined: undefined,
